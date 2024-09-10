@@ -3,8 +3,8 @@ package Entrega1;
 //Estudiante: Oscar Javier Romero Beltran
 //Estudiante: Yuli Estefanny Florez Velazquex
 //Estudiante: Omar Enrique Leguizamon Rodriguez
-//Estudiante: 
-//Estudiante:
+//Estudiante: Yennifer Tatiana Villa Zapata
+//Estudiante: Brian Steven Zambrano Hurtado
 
 
 //Los imports utilizados, permiten trabajar con archivos y generar datos aleatorios
