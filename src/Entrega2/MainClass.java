@@ -1,4 +1,8 @@
-package Entrega2;
+package Entrega2; //semana 5
+
+//Brian Steven Zambrano Hurtado
+//Oscar Javier Romero Beltran
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,7 +23,6 @@ public class MainClass {
                 String[] partes = linea.split(";");
                 if (partes.length >= 3) {
                     String idProducto = partes[0].trim();
-                    String nombreProducto = partes[1].trim();
                     String precioTexto = partes[2].trim();
                     try {
                         // Reemplazamos las comas por puntos antes de convertir
