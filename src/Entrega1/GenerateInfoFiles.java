@@ -4,6 +4,7 @@ package Entrega1;
 //Oscar Javier Romero Beltran
 //Yennifer Tatiana Villa Zapata
 //Yuli Estefanny Florez Velasquez
+//Omar Enrique Leguizamón Rodriguez
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
