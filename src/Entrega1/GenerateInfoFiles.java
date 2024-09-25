@@ -2,6 +2,8 @@ package Entrega1;
 
 //Brian Steven Zambrano Hurtado
 //Oscar Javier Romero Beltran
+//Yennifer Tatiana Villa Zapata
+//Yuli Estefanny Florez Velasquez
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
