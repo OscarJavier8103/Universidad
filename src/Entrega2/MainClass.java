@@ -1,10 +1,11 @@
-package Entrega2; //semana 5
+package Entrega2; //Entrega Final
 
 //Brian Steven Zambrano Hurtado
 //Oscar Javier Romero Beltran
 //Yennifer Tatiana Villa Zapata
 //Yuli Estefanny Florez Velasquez
 //Omar Enrique Leguizamón Rodriguez
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,38 +18,37 @@ import java.util.Map;
 
 public class MainClass {
 
-    // Método para leer el archivo de productos y cargar los precios
-    public static Map<String, Double> leerProductos(String filePath) {
-        Map<String, Double> productos = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                String[] partes = linea.split(";");
-                if (partes.length >= 3) {
-                    String idProducto = partes[0].trim();
-                    String precioTexto = partes[2].trim();
-                    try {
-                        // Reemplazamos las comas por puntos antes de convertir
-                        String precioConFormatoCorrecto = precioTexto.replace(",", ".");
-                        double precioProducto = Double.parseDouble(precioConFormatoCorrecto);
-                        productos.put(idProducto, precioProducto);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error: No se pudo convertir el precio del producto con ID " + idProducto + ". Valor: " + precioTexto);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo de productos: " + e.getMessage());
-        }
-        return productos;
-    }
+	public static Map<String, String[]> leerProductos(String filePath) {
+	   
+	    Map<String, String[]> productos = new HashMap<>();
+	    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+	        String linea;
+	        while ((linea = br.readLine()) != null) {
+	            String[] partes = linea.split(";");
+	            if (partes.length >= 3) {
+	                String idProducto = partes[0].trim();
+	                String nombreProducto = partes[1].trim();
+	                String precioTexto = partes[2].trim();
+	                try {
+	                   
+	                    String precioConFormatoCorrecto = precioTexto.replace(",", ".");
+	                    productos.put(idProducto, new String[] {nombreProducto, precioConFormatoCorrecto});
+	                } catch (NumberFormatException e) {
+	                    System.out.println("Error: No se pudo convertir el precio del producto con ID " + idProducto + ". Valor: " + precioTexto);
+	                }
+	            }
+	        }
+	    } catch (IOException e) {
+	        System.out.println("Error al leer el archivo de productos: " + e.getMessage());
+	    }
+	    return productos;
+	}
 
-    // Método para calcular las ventas por vendedor
+
     public static Map<String, Double> calcularVentasPorVendedor(String folderPath, Map<String, Double> preciosProductos) {
         Map<String, Double> ventasPorVendedor = new HashMap<>();
-        File folder = new File(folderPath);
 
-        // Verificar si el folder es válido y contiene archivos
+        File folder = new File(folderPath);
         File[] files = folder.listFiles();
         if (files == null || files.length == 0) {
             System.out.println("Error: La carpeta de ventas no existe o está vacía.");
@@ -56,92 +56,153 @@ public class MainClass {
         }
 
         for (File file : files) {
-            // Procesar solo archivos que terminen con "_ventas.txt"
             if (file.isFile() && file.getName().endsWith("_ventas.txt")) {
                 try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String primeraLinea = br.readLine();  // Leer la primera línea que contiene la info del vendedor
+                    String primeraLinea = br.readLine();
                     if (primeraLinea != null) {
                         String[] partesVendedor = primeraLinea.split(";");
                         if (partesVendedor.length >= 2) {
-                            String idVendedor = partesVendedor[0].split(":")[1].trim(); 
+                            String idVendedor = partesVendedor[0].split(":")[1].trim();
                             double totalVentas = 0.0;
 
                             String linea;
                             while ((linea = br.readLine()) != null) {
                                 String[] partesVenta = linea.split(";");
                                 if (partesVenta.length >= 2) {
-                                    String idProducto = partesVenta[0].split(":")[1].trim(); // Extraer ID de producto
-                                    int cantidadVendida = Integer.parseInt(partesVenta[1].split(":")[1].trim()); // Extraer cantidad vendida
+                                    String idProducto = partesVenta[0].split(":")[1].trim();
+                                    int cantidadVendida = Integer.parseInt(partesVenta[1].split(":")[1].trim());
+
                                     Double precioProducto = preciosProductos.get(idProducto);
                                     if (precioProducto != null) {
-                                        totalVentas += precioProducto * cantidadVendida;
+                                        if (cantidadVendida < 0 || precioProducto < 0) {
+                                            System.out.println("Advertencia: Cantidad o precio negativo para el producto con ID " + idProducto);
+                                        } else {
+                                            totalVentas += precioProducto * cantidadVendida;
+                                        }
                                     } else {
                                         System.out.println("Advertencia: Producto con ID " + idProducto + " no encontrado en el archivo de productos.");
                                     }
-                                } else {
-                                    System.out.println("Advertencia: Línea de venta mal formada en el archivo: " + file.getName());
                                 }
                             }
-
-                            // Actualizar total de ventas del vendedor
                             ventasPorVendedor.put(idVendedor, totalVentas);
-                        } else {
-                            System.out.println("Advertencia: Línea de vendedor mal formada en el archivo: " + file.getName());
                         }
                     }
                 } catch (IOException e) {
                     System.out.println("Error al leer el archivo de ventas: " + e.getMessage());
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Error: Formato inesperado en el archivo: " + file.getName());
-                } catch (NumberFormatException e) {
-                    System.out.println("Error: No se pudo convertir la cantidad vendida en el archivo: " + file.getName());
                 }
             }
         }
-
         return ventasPorVendedor;
     }
 
-    // Método para generar el reporte de vendedores
+    public static Map<String, Integer> calcularCantidadVendidaPorProducto(String folderPath) {
+        Map<String, Integer> productosVendidos = new HashMap<>();
+
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles();
+        if (files == null || files.length == 0) {
+            System.out.println("Error: La carpeta de ventas no existe o está vacía.");
+            return productosVendidos;
+        }
+
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith("_ventas.txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    br.readLine(); 
+
+                    String linea;
+                    while ((linea = br.readLine()) != null) {
+                        String[] partesVenta = linea.split(";");
+                        if (partesVenta.length >= 2) {
+                            String idProducto = partesVenta[0].split(":")[1].trim();
+                            int cantidadVendida = Integer.parseInt(partesVenta[1].split(":")[1].trim());
+
+                            productosVendidos.put(idProducto, productosVendidos.getOrDefault(idProducto, 0) + cantidadVendida);
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error al leer archivo de ventas: " + e.getMessage());
+                }
+            }
+        }
+        return productosVendidos;
+    }
+
     public static void generarReporteVendedores(String outputPath, Map<String, Double> ventasPorVendedor) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath))) {
             bw.write("ID Vendedor; Total Ventas\n");
-            for (Map.Entry<String, Double> entry : ventasPorVendedor.entrySet()) {
-                bw.write(entry.getKey() + "; " + entry.getValue() + "\n");
-            }
+
+            ventasPorVendedor.entrySet()
+                .stream()
+                .sorted((v1, v2) -> Double.compare(v2.getValue(), v1.getValue())) 
+                .forEach(entry -> {
+                    try {
+                        bw.write(entry.getKey() + "; " + entry.getValue() + "\n");
+                    } catch (IOException e) {
+                        System.out.println("Error al escribir en el reporte de vendedores: " + e.getMessage());
+                    }
+                });
+
             System.out.println("Reporte de vendedores generado correctamente.");
         } catch (IOException e) {
             System.out.println("Error al generar el reporte de vendedores: " + e.getMessage());
         }
     }
 
-    // Método para generar el reporte de productos
-    public static void generarReporteProductos(String outputPath, Map<String, Double> preciosProductos) {
+    public static void generarReporteProductosVendidos(String outputPath, Map<String, Integer> productosVendidos, Map<String, String[]> productos) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath))) {
-            bw.write("ID Producto; Precio\n");
-            for (Map.Entry<String, Double> entry : preciosProductos.entrySet()) {
-                bw.write(entry.getKey() + "; " + entry.getValue() + "\n");
-            }
-            System.out.println("Reporte de productos generado correctamente.");
+            bw.write("ID Producto; Nombre Producto; Cantidad Vendida; Precio Unitario\n");
+
+            productosVendidos.entrySet()
+                .stream()
+                .sorted((p1, p2) -> Integer.compare(p2.getValue(), p1.getValue()))
+                .forEach(entry -> {
+                    try {
+                        String idProducto = entry.getKey();
+                        int cantidad = entry.getValue();
+                        String[] datosProducto = productos.get(idProducto);
+                        if (datosProducto != null) {
+                            String nombreProducto = datosProducto[0];
+                            String precioProducto = datosProducto[1];
+                            bw.write(idProducto + "; " + nombreProducto + "; " + cantidad + "; " + precioProducto + "\n");
+                        } else {
+                            System.out.println("Producto con ID " + idProducto + " no encontrado.");
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Error al escribir en el reporte de productos vendidos: " + e.getMessage());
+                    }
+                });
+
+            System.out.println("Reporte de productos vendidos generado correctamente.");
         } catch (IOException e) {
-            System.out.println("Error al generar el reporte de productos: " + e.getMessage());
+            System.out.println("Error al generar el reporte de productos vendidos: " + e.getMessage());
         }
     }
 
-    public static void main(String[] args) {
-        String productosFilePath = "productos.txt";  // Ruta del archivo de productos
-        String ventasFolderPath = "C:/Users/ORomero/eclipse-workspace/Proyecto_Vendedores"; // Carpeta que contiene los archivos de ventas
-        String reporteVendedoresPath = "reporte_vendedores.txt"; // Ruta del reporte de vendedores
-        String reporteProductosPath = "reporte_productos.txt";   // Ruta del reporte de productos
 
-        // Leer productos
-        Map<String, Double> preciosProductos = leerProductos(productosFilePath);
+    public static void main(String[] args) {
+        String productosFilePath = "productos.txt";
+        String ventasFolderPath = "C:/Users/ORomero/eclipse-workspace/Proyecto_Vendedores";
+        String reporteVendedoresPath = "reporte_vendedores.txt";
+        String reporteProductosPath = "reporte_productos_vendidos.txt";
+
         
-        // Calcular ventas por vendedor
-        Map<String, Double> ventasPorVendedor = calcularVentasPorVendedor(ventasFolderPath, preciosProductos);
-        
-        // Generar reportes
+        Map<String, String[]> productos = leerProductos(productosFilePath);
+        Map<String, Double> ventasPorVendedor = calcularVentasPorVendedor(ventasFolderPath, getPreciosFromProductos(productos));
+        Map<String, Integer> productosVendidos = calcularCantidadVendidaPorProducto(ventasFolderPath);
+
         generarReporteVendedores(reporteVendedoresPath, ventasPorVendedor);
-        generarReporteProductos(reporteProductosPath, preciosProductos);
+        generarReporteProductosVendidos(reporteProductosPath, productosVendidos, productos);
     }
+
+    
+    public static Map<String, Double> getPreciosFromProductos(Map<String, String[]> productos) {
+        Map<String, Double> precios = new HashMap<>();
+        for (Map.Entry<String, String[]> entry : productos.entrySet()) {
+            precios.put(entry.getKey(), Double.parseDouble(entry.getValue()[1]));
+        }
+        return precios;
+    }
+
 }
+
